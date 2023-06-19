@@ -186,6 +186,12 @@ class RawFile(RawFileAbc):
         raw_data_start = binary_location + len(binary_line)
         # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
         header_lines = stdout[:binary_location].splitlines()
+        for line in header_lines:
+            if line.startswith(b'Circuit'):
+                circuit_line_index = header_lines.index(line)
+                break
+            self._logger.debug(f"Ignoring line: {line}")
+        header_lines = header_lines[circuit_line_index:]
         raw_data = stdout[raw_data_start:]
         header_line_iterator = iter(header_lines)
 
