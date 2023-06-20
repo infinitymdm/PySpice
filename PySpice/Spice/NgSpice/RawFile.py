@@ -184,6 +184,7 @@ class RawFile(RawFileAbc):
         if binary_location < 0:
             raise NameError('Cannot locate binary data')
         raw_data_start = binary_location + len(binary_line)
+        raw_data = stdout[raw_data_start:]
         # self._logger.debug(os.linesep + stdout[:raw_data_start].decode('utf-8'))
         header_lines = stdout[:binary_location].splitlines()
         for line in header_lines:
@@ -191,9 +192,7 @@ class RawFile(RawFileAbc):
                 circuit_line_index = header_lines.index(line)
                 break
             self._logger.debug(f"Ignoring line: {line}")
-        header_lines = header_lines[circuit_line_index:]
-        raw_data = stdout[raw_data_start:]
-        header_line_iterator = iter(header_lines)
+        header_line_iterator = iter(header_lines[circuit_line_index:])
 
         self.circuit_name = self._read_header_field_line(header_line_iterator, 'Circuit')
         self.temperature, self.nominal_temperature = self._read_temperature_line(header_line_iterator)
