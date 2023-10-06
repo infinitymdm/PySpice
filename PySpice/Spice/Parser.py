@@ -729,15 +729,8 @@ class Line:
         dict_parameters = {}
 
         parts = []
-        for part in text.split():
-            if '=' in part and part != '=':
-                left, right = [x for x in part.split('=')]
-                parts.append(left)
-                parts.append('=')
-                if right:
-                    parts.append(right)
-            else:
-                parts.append(part)
+        for left, right in zip(*[iter(text.split('='))]*2):
+            parts.extend([left ,'=', right])
 
         i = 0
         i_stop = len(parts)
