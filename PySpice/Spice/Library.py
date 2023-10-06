@@ -55,6 +55,7 @@ class SpiceLibrary:
     _logger = _module_logger.getChild('Library')
 
     EXTENSIONS = (
+        '.ngspice',
         '.spice',
         '.lib',
         '.mod',
@@ -84,14 +85,12 @@ class SpiceLibrary:
                     # Parse problem with this file, so skip it and keep going.
                     self._logger.warn("Problem parsing {path} - {e}".format(**locals()))
                     continue
-                if spice_parser.is_only_subcircuit():
-                    for subcircuit in spice_parser.subcircuits:
-                        name = self._suffix_name(subcircuit.name, extension)
-                        self._subcircuits[name] = path
-                elif spice_parser.is_only_model():
-                    for model in spice_parser.models:
-                        name = self._suffix_name(model.name, extension)
-                        self._models[name] = path
+                for subcircuit in spice_parser.subcircuits:
+                    name = self._suffix_name(subcircuit.name, extension)
+                    self._subcircuits[name] = path
+                for model in spice_parser.models:
+                    name = self._suffix_name(model.name, extension)
+                    self._models[name] = path
 
     ##############################################
 
