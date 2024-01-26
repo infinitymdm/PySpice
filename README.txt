@@ -41,7 +41,7 @@
 The free Discourse forum was closed some time ago due to a lack of activity.
 A HTML backup is stored in the directory `pyspice-discourse-backup`.
 
-**On HEAD**
+**On Devel HEAD**
 * fixed the ngspice library loading for recent cffi
 * fixed simulation aborting due to a message from newer ngspice
 * fixes for Spice parser
