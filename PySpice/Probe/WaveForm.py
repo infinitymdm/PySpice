@@ -312,8 +312,8 @@ class Analysis:
             return self._elements[name]
         elif name in self._internal_parameters:
             return self._internal_parameters[name]
-        elif name in self.measurements:
-            return self.measurements[name]
+        elif name in self._measurements:
+            return self._measurements[name]
         else:
             raise IndexError(name)
 

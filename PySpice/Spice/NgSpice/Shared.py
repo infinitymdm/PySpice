@@ -288,7 +288,7 @@ class Plot(dict):
         else:
             raise NotImplementedError(f"Unsupported plot name {self.plot_name}")
 
-        analysis.measurements = measurements
+        analysis._measurements = measurements
         return analysis
 
     ##############################################
@@ -621,6 +621,8 @@ class NgSpiceShared:
             self._stderr.append(content)
             if content.startswith('Using SPARSE'):
                 func = self._logger.info
+            elif content.startswith('Error: bad set form in line'):
+                func = self._logger.info # TODO: Make sure there are actually no consequences from this
             elif content.startswith('Warning:'):
                 func = self._logger.warning
             elif 'Note:' in content:
