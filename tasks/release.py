@@ -4,17 +4,17 @@
 # Copyright (C) 2019 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -84,17 +84,19 @@ def update_git_sha(ctx):
     # Fixme: wrong workflow, must tag the last commit
     result = ctx.run('git describe --tags --abbrev=0 --always', hide='out')
     tag = result.stdout.strip()
+    print(f"Tag is {tag}")
     if tag.startswith('v'):
         version = tag[1:]
+        version = version.replace('-branched', '')
     else:
         version = tag
-    if not re.match('\d+(\.\d+(\.\d+)?)?', version):
+    if not re.match(r'\d+(\.\d+(\.\d+)?)?', version):
         raise ValueError('Invalid version {}'.format(version))
     result = ctx.run('git rev-parse HEAD', hide='out')
     sha = result.stdout.strip()
-    print(sha)
-    print(tag)
-    print(version)
+    print(f"SHA {sha}")
+    print(f"Tag {tag}")
+    print(f"Version {version}")
     filename = Path(ctx.Package, '__init__.py')
     with open(str(filename), 'r') as fh:
         lines = fh.readlines()
@@ -102,10 +104,10 @@ def update_git_sha(ctx):
         for line in lines:
             if line.startswith('__version__'):
                 line = "__version__ = '{}'\n".format(version)
-            if line.startswith('__git_tag__'):
-                line = "__git_tag__ = '{}'\n".format(tag)
-            if line.startswith('__git_sha__'):
-                line = "__git_sha__ = '{}'\n".format(sha)
+            if line.startswith('GIT_TAG'):
+                line = "GIT_TAG = '{}'\n".format(tag)
+            if line.startswith('GIT_SHA'):
+                line = "GIT_SHA = '{}'\n".format(sha)
             fh.write(line)
 
 ####################################################################################################

@@ -4,17 +4,17 @@
 # Copyright (C) 2020 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -129,7 +129,16 @@ def run_example(path):
 def on_linux(path):
 
     skipped_files = [
-        make_path('operational-amplifier', 'astable.py'),   # doAnalyses: Too many iterations without convergence
+        # doAnalyses: Too many iterations without convergence
+        make_path('operational-amplifier', 'astable.py'),
+
+        # On GitHub
+        # 2021-05-14 20:43:12,785 - PySpice.Spice.NgSpice.Shared.NgSpiceShared.load_circuit - ERROR - 
+        # Circuit: Voltage Divider
+        # Error on line 2 :
+        # vinput input 0 dc 0 external
+        # parameter value out of range or the wrong type
+        make_path('ngspice-shared', 'external-source.py'),
     ]
 
     if str(path) in skipped_files:

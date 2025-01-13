@@ -17,9 +17,8 @@ logger = Logging.setup_logging()
 ####################################################################################################
 
 from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
-from PySpice.Spice.Parser import SpiceParser
+from PySpice import SpiceLibrary, Circuit, Simulator
+from PySpice.Spice.Parser import SpiceSource, Translator
 from PySpice.Unit import *
 
 ####################################################################################################
@@ -49,10 +48,13 @@ print(source)
 
 ####################################################################################################
 
-parser = SpiceParser(source=source)
-bootstrap_circuit = parser.build_circuit()
+spice_source = SpiceSource(source=source, title_line=False)
+bootstrap_circuit = Translator.Builder().translate(spice_source)
 
 bootstrap_source = str(bootstrap_circuit)
 print(bootstrap_source)
 
 assert(source == bootstrap_source)
+# for line1, line2 in zip(source.splitlines(), bootstrap_source.splitlines()):
+#     if line1 != line2:
+#         print(f"!= '{line1}' / '{line2}'")

@@ -4,17 +4,17 @@
 # Copyright (C) 2020 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -117,10 +117,12 @@ ARTICLE_PATHS = ['']
 # A list of directories to exclude when looking for articles in addition to PAGE_PATHS.
 ARTICLE_EXCLUDES = []
 
-# Set to True if you want to copy the articles and pages in their original format (e.g. Markdown or reStructuredText) to the specified OUTPUT_PATH.
+# Set to True if you want to copy the articles and pages in their original format (e.g. Markdown or
+# reStructuredText) to the specified OUTPUT_PATH.
 OUTPUT_SOURCES = False
 
-# Controls the extension that will be used by the SourcesGenerator. Defaults to .text. If not a valid string the default value will be used.
+# Controls the extension that will be used by the SourcesGenerator. Defaults to .text. If not a
+# valid string the default value will be used.
 OUTPUT_SOURCES_EXTENSION = '.text'
 
 # The list of plugins to load. See Plugins.
@@ -423,7 +425,7 @@ TEMPLATE_EXTENSIONS = ['.html']
 # generate index pages for collections of content (e.g., category and tag index pages).
 # DIRECT_TEMPLATES are searched for over paths maintained in THEME_TEMPLATES_OVERRIDES.
 DIRECT_TEMPLATES = [
-    'index',
+    # 'index',
     'authors',
     'categories',
     'tags',

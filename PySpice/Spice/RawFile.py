@@ -4,17 +4,17 @@
 # Copyright (C) 2017 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -38,9 +38,11 @@ import numpy as np
 
 ####################################################################################################
 
-from PySpice.Probe.WaveForm import (OperatingPoint, SensitivityAnalysis,
-                                    DcAnalysis, AcAnalysis, TransientAnalysis,
-                                    WaveForm)
+from PySpice.Probe.WaveForm import (
+    OperatingPoint, SensitivityAnalysis,
+    DcAnalysis, AcAnalysis, TransientAnalysis,
+    WaveForm,
+)
 
 ####################################################################################################
 
@@ -171,7 +173,6 @@ class RawFileAbc:
 
     @property
     def simulation(self):
-
         if self._simulation is not None:
             return self._simulation
         else:
@@ -308,7 +309,6 @@ class RawFileAbc:
     ##############################################
 
     def nodes(self, to_float=False, abscissa=None):
-
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_voltage_node()]
@@ -316,7 +316,6 @@ class RawFileAbc:
     ##############################################
 
     def branches(self, to_float=False, abscissa=None):
-
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_branch_current()]
@@ -324,7 +323,6 @@ class RawFileAbc:
     ##############################################
 
     def internal_parameters(self, to_float=False, abscissa=None):
-
         return [variable.to_waveform(abscissa, to_float=to_float)
                 for variable in self.variables.values()
                 if variable.is_interval_parameter]
@@ -332,7 +330,6 @@ class RawFileAbc:
     ##############################################
 
     def elements(self, abscissa=None):
-
         return [variable.to_waveform(abscissa, to_float=True)
                 for variable in self.variables.values()]
 
@@ -369,7 +366,6 @@ class RawFileAbc:
     ##############################################
 
     def _to_sensitivity_analysis(self):
-
         # Fixme: test .SENS I (VTEST)
         # Fixme: separate v(vinput), analysis.R2.m
         return SensitivityAnalysis(
@@ -380,7 +376,6 @@ class RawFileAbc:
     ##############################################
 
     def _to_dc_analysis(self, sweep_variable):
-
         sweep = sweep_variable.to_waveform()
         return DcAnalysis(
             simulation=self.simulation,
@@ -393,7 +388,6 @@ class RawFileAbc:
     ##############################################
 
     def _to_ac_analysis(self):
-
         frequency = self.variables['frequency'].to_waveform(to_real=True)
         return AcAnalysis(
             simulation=self.simulation,
@@ -406,7 +400,6 @@ class RawFileAbc:
     ##############################################
 
     def _to_transient_analysis(self):
-
         time = self.variables['time'].to_waveform(to_real=True)
         return TransientAnalysis(
             simulation=self.simulation,

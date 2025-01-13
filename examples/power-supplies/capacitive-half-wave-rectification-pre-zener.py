@@ -11,14 +11,11 @@ logger = Logging.setup_logging()
 
 ####################################################################################################
 
-from PySpice.Doc.ExampleTools import find_libraries
-from PySpice.Probe.Plot import plot
-from PySpice.Spice.Library import SpiceLibrary
-from PySpice.Spice.Netlist import Circuit
+from PySpice import plot, SpiceLibrary, Circuit, Simulator
+# from PySpice import *
 from PySpice.Unit import *
 
-####################################################################################################
-
+from PySpice.Doc.ExampleTools import find_libraries
 libraries_path = find_libraries()
 spice_library = SpiceLibrary(libraries_path)
 
@@ -49,9 +46,9 @@ circuit.R('load', 'out', circuit.gnd, 1@u_kΩ)
 #?# Fixme: circuit.nodes[2].v, circuit.branch.current
 # print circuit.nodes
 
-# Simulator(circuit, ...).transient(...)
-simulator = circuit.simulator(temperature=25, nominal_temperature=25)
-analysis = simulator.transient(step_time=ac_line.period/200, end_time=ac_line.period*50)
+simulator = Simulator.factory(simulator='ngspice')
+simulation = simulator.simulation(circuit, temperature=25, nominal_temperature=25)
+analysis = simulation.transient(step_time=ac_line.period/200, end_time=ac_line.period*50, log_desk=True)
 
 figure, ax = plt.subplots(1, figsize=(20, 10))
 

@@ -4,17 +4,25 @@
 # Copyright (C) 2014 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+####################################################################################################
+
+####################################################################################################
+#
+# Note:
+#   PR #136 has non understood changes
+#     https://github.com/FabriceSalvaire/PySpice/pull/136/files
 #
 ####################################################################################################
 
@@ -88,10 +96,11 @@ class WaveForm(UnitValues):
 
     ##############################################
 
-    def __new__(cls, name, prefixed_unit, shape,
-                dtype=float, buffer=None, offset=0, strides=None, order=None,
-                title=None, abscissa=None,
-                ):
+    def __new__(
+            cls, name, prefixed_unit, shape,
+            dtype=float, buffer=None, offset=0, strides=None, order=None,
+            title=None, abscissa=None,
+    ):
         # Called first
         # cls._logger.info(str((cls, prefixed_unit, shape, dtype, buffer, offset, strides, order)))
 
@@ -165,7 +174,8 @@ class WaveForm(UnitValues):
     ##############################################
 
     def __repr__(self):
-        return '{0.__class__.__name__} {0._name} {1}'.format(self, super().__str__())
+        _ = super().__str__()
+        return '{self.__class__.__name__} {self._name} {_}'
 
     ##############################################
 
@@ -242,19 +252,26 @@ class Analysis:
 
     """
 
+    _logger = _module_logger.getChild('Analysis')
+
     ##############################################
 
     def __init__(self, simulation, nodes=(), branches=(), elements=(), internal_parameters=(), measurements={}):
 
         # Fixme: branches are elements in fact, and elements is not yet supported ...
-
         self._simulation = simulation
         # Fixme: to func?
-        self._nodes = {waveform.name:waveform for waveform in nodes}
-        self._branches = {waveform.name:waveform for waveform in branches}
-        self._elements = {waveform.name:waveform for waveform in elements}
-        self._internal_parameters = {waveform.name:waveform for waveform in internal_parameters}
-        self.measurements = measurements
+        self._nodes = {waveform.name: waveform for waveform in nodes}
+        self._branches = {waveform.name: waveform for waveform in branches}
+        self._elements = {waveform.name: waveform for waveform in elements}
+        self._internal_parameters = {waveform.name: waveform for waveform in internal_parameters}
+        self._measurements = measurements
+
+    ##############################################
+
+    def __setstate__(self, state):
+        # Fixme: useful ???
+        self.__dict__.update(state)
 
     ##############################################
 
@@ -279,10 +296,13 @@ class Analysis:
     def internal_parameters(self):
         return self._internal_parameters
 
-   ##############################################
+    @property
+    def measurements(self):
+        return self._measurements
+
+    ##############################################
 
     def _get_item(self, name):
-
         # Fixme: cache dict ???
         if name in self._nodes:
             return self._nodes[name]
@@ -292,14 +312,15 @@ class Analysis:
             return self._elements[name]
         elif name in self._internal_parameters:
             return self._internal_parameters[name]
-        elif name in self.measurements:
-            return self.measurements[name]
+        elif name in self._measurements:
+            return self._measurements[name]
         else:
             raise IndexError(name)
 
     ##############################################
 
     def __getitem__(self, name):
+        # handle analysis['foo']
         try:
             return self._get_item(name)
         except IndexError:
@@ -314,7 +335,7 @@ class Analysis:
     ##############################################
 
     def __getattr__(self, name):
-
+        # handle analysis.foo
         try:
             return self.__getitem__(name)
         except IndexError:
@@ -331,7 +352,6 @@ class Analysis:
 
 class OperatingPoint(Analysis):
     """This class implements an operating point analysis."""
-    pass
 
 ####################################################################################################
 
@@ -364,10 +384,10 @@ class DcAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, sweep, nodes, branches, internal_parameters):
-
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
-
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._sweep = sweep
 
     ##############################################
@@ -386,10 +406,10 @@ class AcAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
-
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
-
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._frequency = frequency
 
     ##############################################
@@ -408,10 +428,10 @@ class TransientAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, time, nodes, branches, internal_parameters):
-
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
-
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._time = time
 
     ##############################################
@@ -430,8 +450,10 @@ class PoleZeroAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
 
 ####################################################################################################
 
@@ -442,8 +464,10 @@ class NoiseAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
 
 ####################################################################################################
 
@@ -454,10 +478,10 @@ class DistortionAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, frequency, nodes, branches, internal_parameters):
-
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
-
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )
         self._frequency = frequency
 
     ##############################################
@@ -476,6 +500,7 @@ class TransferFunctionAnalysis(Analysis):
     ##############################################
 
     def __init__(self, simulation, nodes, branches, internal_parameters):
-
-        super().__init__(simulation=simulation, nodes=nodes, branches=branches,
-                         internal_parameters=internal_parameters)
+        super().__init__(
+            simulation=simulation, nodes=nodes, branches=branches,
+            internal_parameters=internal_parameters,
+        )

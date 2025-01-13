@@ -6,17 +6,17 @@
 # Copyright (C) 2014 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -27,9 +27,10 @@
 ####################################################################################################
 
 from ..Math import rms_to_amplitude, amplitude_to_rms
-from ..Tools.StringTools import join_list, join_dict, str_spice, str_spice_list
 from ..Unit import as_s, as_V, as_A, as_Hz
 from .BasicElement import VoltageSource, CurrentSource
+from .StringTools import join_list, join_dict
+from .unit import str_spice, str_spice_list
 
 ####################################################################################################
 

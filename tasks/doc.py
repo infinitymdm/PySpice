@@ -5,17 +5,17 @@
 # Copyright (C) 2019 Fabrice Salvaire
 #
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Affero General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# GNU Affero General Public License for more details.
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 ####################################################################################################
 
@@ -61,9 +61,12 @@ def clean_api(ctx):
 
 @task(_update_git_sha, _clean_flycheck, clean_api)
 def make_api(ctx):
-    print('\nGenerate RST API files')
+    print()
+    print('Generate RST API files')
     ctx.run('pyterate-rst-api {0.Package}'.format(ctx))
     run_sphinx(ctx)
+    print('')
+    print('<<< Check API contains undocumented >>>')
 
 ####################################################################################################
 
@@ -101,7 +104,8 @@ def make_examples(ctx, clean=False, no_html=False, force=False):
 
 @task
 def run_sphinx(ctx):
-    print('\nRun Sphinx')
+    print()
+    print('Run Sphinx')
     working_path = SPHINX_PATH
     # subprocess.run(('make-html'), cwd=working_path)
     # --clean
@@ -136,6 +140,10 @@ def publish(ctx):
     from .SECRET_CONFIG import SSH_CONFIG
     import PySpice
     release = PySpice.__version__
+    rc = input(f"Release is {release}: [Y/N]")
+    if rc.lower() != 'y':
+        return
+    print('rsync...')
     version = '.'.join(release.split('.')[:2])
     command_template = (
         'rsync'

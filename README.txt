@@ -3,9 +3,9 @@
 .. include:: project-links.txt
 .. include:: abbreviation.txt
 
-=====================================================================================
+======================================================================================
  PySpice : Simulate Electronic Circuit using Python and the Ngspice / Xyce Simulators
-=====================================================================================
+======================================================================================
 
 |Pypi License|
 |Pypi Python Version|
@@ -17,14 +17,18 @@
 
 |Tavis CI master|
 
+|Pyspice Test Workflow|
+
 **Quick Links**
 
-* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
 * `Devel Branch <https://github.com/FabriceSalvaire/PySpice/tree/devel>`_
-* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_
+* `Production Branch <https://github.com/FabriceSalvaire/PySpice/tree/master>`_
+* `Travis CI <https://travis-ci.com/github/FabriceSalvaire/PySpice>`_ but need free credits...
+
 * `pyspice@conda-forge <https://github.com/conda-forge/pyspice-feedstock>`_
 * `conda-forge/pyspice <https://anaconda.org/conda-forge/pyspice>`_
 * `ngspice@conda-forge <https://github.com/conda-forge/ngspice-feedstock>`_
+
 * `Ngspice <http://ngspice.sourceforge.net>`_
 * `Ngspice Bug Tracker <https://sourceforge.net/p/ngspice/bugs>`_
 * `Xyce of Sandia National Laboratories <https://xyce.sandia.gov>`_
@@ -104,7 +108,7 @@ pull requests blindly then there is a high risk this software will become a mess
 Credits
 =======
 
-Authors: `Fabrice Salvaire <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
+Authors: `Fabrice SALVAIRE <http://fabrice-salvaire.fr>`_ and `contributors <https://github.com/FabriceSalvaire/PySpice/blob/master/CONTRIBUTORS.md>`_
 
 News
 ====
