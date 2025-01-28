@@ -82,7 +82,7 @@ SIMULATION_TYPE[27] = (
     'charge',
 )
 
-LAST_VERSION = 43   # released on July 14th, 2024
+LAST_VERSION = 44   # released on Dec 29th, 2024
 
 for version in range(28, LAST_VERSION +1):
     SIMULATION_TYPE[version] = SIMULATION_TYPE[27]
