@@ -200,8 +200,10 @@ class RawFile(RawFileAbc):
                          for i in range(stdout.count(b'Warning'))]
         for warning in self.warnings:
             self._logger.warn(warning)
+        self.note = self._read_line(header_line_iterator)
         self.title = self._read_header_field_line(header_line_iterator, 'Title')
         self.date = self._read_header_field_line(header_line_iterator, 'Date')
+        self.command = self._read_header_field_line(header_line_iterator, 'Command')
         self.plot_name = self._read_header_field_line(header_line_iterator, 'Plotname')
         self.flags = self._read_header_field_line(header_line_iterator, 'Flags')
         self.number_of_variables = int(self._read_header_field_line(header_line_iterator, 'No. Variables'))
