@@ -1096,7 +1096,11 @@ class SpiceSource:
             if line.is_comment:
                 continue
             cls = Command.get_cls(line, get_state() == SpiceStates.CONTROL)
-            obj = cls(line, ast)
+            try:
+                obj = cls(line, ast)
+            except:
+                print("Could not parse line:",line)
+                continue
             self._obj_lines.append(obj)
             self._logger.debug(os.linesep + repr(obj))
             match obj:
