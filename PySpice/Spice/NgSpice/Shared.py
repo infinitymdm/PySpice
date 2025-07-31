@@ -627,6 +627,10 @@ class NgSpiceShared:
                 func = self._logger.warning
             elif 'Note:' in content:
                 func = self._logger.info
+            elif 'doAnalyses' in content:
+                func = self._logger.info
+            elif 'run simulation(s) aborted' in content:
+                func = self._logger.info
             else:
                 self._error_in_stderr = True
                 func = self._logger.error
