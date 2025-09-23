@@ -1204,7 +1204,7 @@ class NgSpiceShared:
         if meas_start_index and meas_end_index:
             for line in results[meas_start_index:meas_end_index]:
                 # Extract each measurement result as a k,v pair
-                [k, _, v, *_] = line.split()
+                [k, v, *_] = line.replace('=', ' ').split()
                 measurements[k] = float(v)
         return measurements
 
