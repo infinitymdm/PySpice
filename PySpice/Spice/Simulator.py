@@ -23,7 +23,8 @@ __all__ = ['Simulator']
 # Import base class and all subclass implementations at module load time to register them
 from .SimulatorBase import Simulator
 from .NgSpice.Simulator import NgSpiceSubprocessSimulator, NgSpiceSharedSimulator
-            from .Xyce.Simulator import XyceSimulator
+from .Xyce.Simulator import XyceSimulator
+from .HSpice.Simulator import HSpiceSimulator
 
 # Register all simulator subclasses
 Simulator.register_simulator_class('ngspice-subprocess', NgSpiceSubprocessSimulator)
@@ -32,3 +33,4 @@ Simulator.register_simulator_class('ngspice-shared', NgSpiceSharedSimulator)
 Simulator.register_simulator_class('xyce', XyceSimulator)
 Simulator.register_simulator_class('xyce-serial', XyceSimulator)
 Simulator.register_simulator_class('xyce-parallel', XyceSimulator)
+Simulator.register_simulator_class('hspice', HSpiceSimulator)

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 240" width="100%" height="240" style="background:#1e1e2e; border-radius:12px; font-family:system-ui, sans-serif;">
+  <defs>
+    <linearGradient id="headGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fab387"/>
+      <stop offset="100%" stop-color="#f9e2af"/>
+    </linearGradient>
+    <linearGradient id="payloadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#89b4fa"/>
+      <stop offset="100%" stop-color="#b4befe"/>
+    </linearGradient>
+    <linearGradient id="tailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f2cdcd"/>
+      <stop offset="100%" stop-color="#f5c2e7"/>
+    </linearGradient>
+  </defs>
+
+  <text x="30" y="35" fill="#cdd6f4" font-size="16" font-weight="bold">Generic Block Encapsulation</text>
+
+  <g transform="translate(30, 60)">
+    <!-- Block Head -->
+    <rect x="0" y="20" width="220" height="80" rx="8" fill="url(#headGrad)"/>
+    <text x="110" y="45" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">Block Head</text>
+    <text x="110" y="65" fill="#313244" font-size="11" text-anchor="middle">16 Bytes (4 x 32-bit Ints)</text>
+    <text x="110" y="85" fill="#45475a" font-size="10" font-weight="bold" text-anchor="middle">Endian Markers &amp; Byte Size</text>
+
+    <!-- Data Payload -->
+    <rect x="230" y="20" width="300" height="80" rx="8" fill="url(#payloadGrad)"/>
+    <text x="380" y="45" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">Data Payload</text>
+    <text x="380" y="65" fill="#313244" font-size="11" text-anchor="middle">Variable size (N bytes)</text>
+    <text x="380" y="85" fill="#45475a" font-size="10" font-weight="bold" text-anchor="middle">Header text OR Binary measurements</text>
+
+    <!-- Block Tail -->
+    <rect x="540" y="20" width="200" height="80" rx="8" fill="url(#tailGrad)"/>
+    <text x="640" y="45" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">Block Tail</text>
+    <text x="640" y="65" fill="#313244" font-size="11" text-anchor="middle">4 Bytes (1 x 32-bit Int)</text>
+    <text x="640" y="85" fill="#45475a" font-size="10" font-weight="bold" text-anchor="middle">Checksum (matches Byte Size)</text>
+  </g>
+</svg>

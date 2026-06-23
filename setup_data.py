@@ -23,6 +23,7 @@
 ####################################################################################################
 
 import os
+from PySpice.Spice.HSpice.hspicefile.build import ext_modules, cmdclass
 
 ####################################################################################################
 
@@ -73,5 +74,7 @@ else:
 ####################################################################################################
 
 setup_dict = dict(
-    long_description=long_description,
+  long_description=long_description,
+  ext_modules=ext_modules,
+  cmdclass=cmdclass,
 )
