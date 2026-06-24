@@ -356,6 +356,7 @@ int readDataBlock(FILE *f, int debugMode, const char *fileName, float **rawData,
 	swap = readBlockHeader(f, fileName, debugMode, blockHeader, sizeof(float));
 	if(swap == -2) return -1; // Normal EOF / End of block.
 	if(swap < 0) return 1;	// Error.
+	swapGlobal = swap;
 
 	// Allocate space for raw data.
 	tmpRawData = reallocate(debugMode, *rawData,
@@ -365,7 +366,7 @@ int readDataBlock(FILE *f, int debugMode, const char *fileName, float **rawData,
 
 	// Read raw data block.
 	error = readBlockData(f, fileName, debugMode, *rawData + *rawDataOffset,
-						  rawDataOffset, sizeof(float), blockHeader[0], swap);
+						  rawDataOffset, sizeof(float), blockHeader[0], isModernFormatGlobal ? 0 : swap);
 	if(error == 1) return 1;	// Error.
 
 	// Read trailer of file header block.
@@ -633,11 +634,12 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args)
 
 	// Get hspice_read() arguments.
 	if(!PyArg_ParseTuple(args, "si", &fileName, &debugMode)) {
-		Py_INCREF(Py_None);
-		return Py_None;
+		return NULL;
 	}
 
-	if(debugMode) fprintf(debugFile, "HSpiceRead: reading file %s.\n", fileName);
+	if(debugMode) {
+		fprintf(debugFile, "HSpiceRead: reading file %s.\n", fileName);
+	}
 
 	f = fopen(fileName, "rb");	// Open the file.
 	if(f == NULL)
@@ -961,8 +963,6 @@ failed:	// Error occured. Close open file, relese memory and python references.
 	Py_XDECREF(dataList);
 	PyMem_Free(tmpArray);
 	PyMem_Free(faPtr);
-	PyMem_Free(varTypes);
-	PyMem_Free(varSizes);
 	Py_XDECREF(sweeps);
 	Py_XDECREF(tuple);
 	Py_XDECREF(list);

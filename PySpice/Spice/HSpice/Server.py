@@ -1,6 +1,5 @@
 import fcntl
 import logging
-import multiprocessing
 import os
 import re
 import shutil
@@ -22,9 +21,9 @@ def parse_spice_value(val_str):
     return float(val_str[:-1]) * 1e-9
   elif val_str.endswith('u'):
     return float(val_str[:-1]) * 1e-6
+  elif val_str.endswith('meg'):
+    return float(val_str[:-3]) * 1e6
   elif val_str.endswith('m'):
-    if val_str.endswith('meg'):
-      return float(val_str[:-3]) * 1e6
     return float(val_str[:-1]) * 1e-3
   elif val_str.endswith('k'):
     return float(val_str[:-1]) * 1e3
@@ -72,7 +71,21 @@ class HSpiceServer:
 
   def __init__(self, **kwargs):
     self._spice_command = kwargs.get('spice_command') or self.SPICE_COMMAND
-    self._concurrency_limit = int(os.environ.get('PYSPICE_HSPICE_CONCURRENCY_LIMIT') or kwargs.get('concurrency_limit') or 4)
+    concurrency_limit = kwargs.get('concurrency_limit')
+    if concurrency_limit is None:
+      concurrency_limit = os.environ.get('PYSPICE_HSPICE_CONCURRENCY_LIMIT')
+    if concurrency_limit is None:
+      concurrency_limit = 4
+    self._concurrency_limit = int(concurrency_limit)
+    if self._concurrency_limit < 1:
+      raise ValueError("concurrency_limit must be at least 1")
+
+    timeout = kwargs.get('timeout')
+    if timeout is None:
+      timeout = os.environ.get('PYSPICE_HSPICE_TIMEOUT')
+    if timeout is None:
+      timeout = 300
+    self._timeout = float(timeout)
 
   def __call__(self, spice_input):
     logger = _module_logger.getChild('HSpiceServer')
@@ -99,7 +112,11 @@ class HSpiceServer:
         # We run in the temporary directory to avoid cluttering current directory
         cmd = [self._spice_command, "-i", "input.sp", "-o", "output"]
         logger.info(f"Executing: {' '.join(cmd)}")
-        res = subprocess.run(cmd, cwd=tmp_dir, capture_output=True, text=True)
+        try:
+          res = subprocess.run(cmd, cwd=tmp_dir, capture_output=True, text=True, timeout=self._timeout)
+        except subprocess.TimeoutExpired as e:
+          logger.error(f"HSPICE simulation timed out after {self._timeout} seconds.")
+          raise TimeoutError(f"HSPICE simulation timed out after {self._timeout} seconds.") from e
       finally:
         os.close(lock_fd)
 
