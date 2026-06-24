@@ -241,12 +241,20 @@ class HSpiceServer:
             content_lines = [l.strip() for l in lines if l.strip() and not l.startswith('$') and not l.startswith('.')]
             if len(content_lines) >= 2:
               names = content_lines[0].split()
+              is_sweep = len(content_lines) > 2
               for val_line in content_lines[1:]:
                 vals = val_line.split()
                 for name, val in zip(names, vals):
-                  if name.lower() not in ('temper', 'alter#', 'temper#', 'alter'):
+                  name_lower = name.lower()
+                  if name_lower not in ('temper', 'alter#', 'temper#', 'alter'):
                     try:
-                      measurements[name.lower()] = float(val)
+                      float_val = float(val)
+                      if is_sweep:
+                        if name_lower not in measurements:
+                          measurements[name_lower] = []
+                        measurements[name_lower].append(float_val)
+                      else:
+                        measurements[name_lower] = float_val
                     except ValueError:
                       pass
           except Exception as e:
