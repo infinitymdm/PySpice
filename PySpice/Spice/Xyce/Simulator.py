@@ -49,6 +49,7 @@ class XyceSimulator(Simulator):
         # super().__init__(**kwargs)
         xyce_command = kwargs.get('xyce_command', None)
         self._xyce_server = XyceServer(xyce_command=xyce_command)
+        self._parallel = kwargs.get('parallel', False) or kwargs.get('simulator') == 'xyce-parallel'
 
     ##############################################
 

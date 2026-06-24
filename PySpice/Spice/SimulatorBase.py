@@ -42,16 +42,6 @@ class Simulator:
     else:
         DEFAULT_SIMULATOR = 'ngspice-shared'
 
-    SIMULATORS = (
-        'ngspice',
-        'ngspice-shared',
-        'ngspice-subprocess',
-        'xyce',
-        'xyce-serial',
-        'xyce-parallel',
-        'hspice',
-    )
-
     SIMULATOR = None   # for subclass
     _SIMULATOR_CLASSES = {}
 
@@ -81,17 +71,12 @@ class Simulator:
         """
         simulator = kwargs.pop('simulator', cls.DEFAULT_SIMULATOR)
 
-        if simulator not in cls.SIMULATORS:
+        if simulator not in cls._SIMULATOR_CLASSES:
             raise NameError(f"Unknown simulator {simulator}")
 
-        sub_cls = cls._SIMULATOR_CLASSES.get(simulator)
-        if sub_cls is None:
-            raise ValueError(f"Simulator class not registered for {simulator}")
+        sub_cls = cls._SIMULATOR_CLASSES[simulator]
 
-        if simulator == 'xyce-parallel':
-            kwargs['parallel'] = True
-
-        obj = sub_cls(*args, **kwargs)
+        obj = sub_cls(*args, simulator=simulator, **kwargs)
         obj._AS_SIMULATOR = simulator
         return obj
 
