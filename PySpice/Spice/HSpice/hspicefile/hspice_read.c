@@ -584,11 +584,11 @@ int readTable(FILE *f, int debugMode, const char *fileName, PyObject *sweep,
 	if(num)
 	{
 		if(debugMode) if(i == -1) fprintf(debugFile,
-										 "HSpiceRead: failed to insert vector %s into dictionary.\n",
-										 scale);
+						"HSpiceRead: failed to insert vector %s into dictionary.\n",
+						scale);
 					  else fprintf(debugFile,
-								   "HSpiceRead: failed to insert vector %s into dictionary.\n",
-								   name[i]);
+						"HSpiceRead: failed to insert vector %s into dictionary.\n",
+						name[i]);
 		goto readTableFailed;
 	}
 
@@ -669,6 +669,12 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args)
 	do num = readHeaderBlock(f, debugMode, fileName, &buf, &offset);
 	while(num == 0);
 	if(num > 0) goto failed;
+
+	if (offset < dateEndPosition + 1)
+	{
+		if(debugMode) fprintf(debugFile, "HSpiceRead: file header is too short.\n");
+		goto failed;
+	}
 
 	isModernFormatGlobal = 0;
 	// Check version of post format.
@@ -837,10 +843,21 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args)
 			}
 		}
 		if (name[i][0]=='v' && name[i][1]=='(') {
-			for(j=2;name[i][j];j++) {
-				name[i][j-2]=name[i][j];
+			int len = 0;
+			while (name[i][len]) {
+				len++;
 			}
-			name[i][j-2]=0;
+			if (len > 2 && name[i][len-1] == ')') {
+				for(j=2; j < len - 1; j++) {
+					name[i][j-2] = name[i][j];
+				}
+				name[i][len-3] = 0;
+			} else {
+				for(j=2; name[i][j]; j++) {
+					name[i][j-2] = name[i][j];
+				}
+				name[i][j-2] = 0;
+			}
 		}
 	}
 
@@ -967,6 +984,9 @@ failed:	// Error occured. Close open file, relese memory and python references.
 	Py_XDECREF(tuple);
 	Py_XDECREF(list);
 
+	if (PyErr_Occurred()) {
+		return NULL;
+	}
 	Py_INCREF(Py_None);
 	return Py_None;
 }
