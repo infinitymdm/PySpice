@@ -18,7 +18,7 @@
 #
 ####################################################################################################
 
-__all__ = ['Simulator']
+__all__ = ["Simulator"]
 
 import logging
 
@@ -27,22 +27,20 @@ from .Simulation import Simulation
 
 _module_logger = logging.getLogger(__name__)
 
+
 class Simulator:
+    """Base class to implement a simulator."""
 
-    """Base class to implement a simulator.
-
-    """
-
-    _logger = _module_logger.getChild('Simulator')
+    _logger = _module_logger.getChild("Simulator")
 
     #: Define the default simulator
     DEFAULT_SIMULATOR = None
     if ConfigInstall.OS.on_windows:
-        DEFAULT_SIMULATOR = 'ngspice-shared'
+        DEFAULT_SIMULATOR = "ngspice-shared"
     else:
-        DEFAULT_SIMULATOR = 'ngspice-shared'
+        DEFAULT_SIMULATOR = "ngspice-shared"
 
-    SIMULATOR = None   # for subclass
+    SIMULATOR = None  # for subclass
     _SIMULATOR_CLASSES = {}
 
     @classmethod
@@ -69,7 +67,7 @@ class Simulator:
         Return a :obj:`PySpice.Spice.Simulator` subclass.
 
         """
-        simulator = kwargs.pop('simulator', cls.DEFAULT_SIMULATOR)
+        simulator = kwargs.pop("simulator", cls.DEFAULT_SIMULATOR)
 
         if simulator not in cls._SIMULATOR_CLASSES:
             raise NameError(f"Unknown simulator {simulator}")

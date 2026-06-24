@@ -1,12 +1,21 @@
 import logging
 import numpy as np
 from PySpice.Unit import u_V, u_A, u_s, u_Hz
-from PySpice.Probe.WaveForm import TransientAnalysis, DcAnalysis, AcAnalysis, WaveForm, OperatingPoint
+from PySpice.Probe.WaveForm import (
+    TransientAnalysis,
+    DcAnalysis,
+    AcAnalysis,
+    WaveForm,
+    OperatingPoint,
+)
 
 _module_logger = logging.getLogger(__name__)
 
+
 class HSpiceRawFile:
-    def __init__(self, data, simulation=None, measurements=None, op_nodes=None, op_branches=None):
+    def __init__(
+        self, data, simulation=None, measurements=None, op_nodes=None, op_branches=None
+    ):
         self.data = data
         self._simulation = simulation
         self.measurements = measurements or {}
@@ -24,12 +33,16 @@ class HSpiceRawFile:
     def to_analysis(self):
         if self.data is None:
             # This is an operating point simulation!
-            nodes = [WaveForm.from_unit_values(name, u_V(np.array([val]))) for name, val in self.op_nodes.items()]
-            branches = [WaveForm.from_unit_values(name, u_A(np.array([val]))) for name, val in self.op_branches.items()]
+            nodes = [
+                WaveForm.from_unit_values(name, u_V(np.array([val])))
+                for name, val in self.op_nodes.items()
+            ]
+            branches = [
+                WaveForm.from_unit_values(name, u_A(np.array([val])))
+                for name, val in self.op_branches.items()
+            ]
             return OperatingPoint(
-                simulation=self.simulation,
-                nodes=nodes,
-                branches=branches
+                simulation=self.simulation, nodes=nodes, branches=branches
             )
 
         # data is a list of sweeps returned by hspice_read
@@ -40,10 +53,10 @@ class HSpiceRawFile:
         if len(data_list) == 0:
             analysis = TransientAnalysis(
                 simulation=self.simulation,
-                time=WaveForm.from_array('time', np.array([])),
+                time=WaveForm.from_array("time", np.array([])),
                 nodes=[],
                 branches=[],
-                internal_parameters=[]
+                internal_parameters=[],
             )
             analysis._measurements = self.measurements
             return analysis
@@ -53,7 +66,7 @@ class HSpiceRawFile:
             # Let's find the scale/abscissa variable (typically TIME or FREQUENCY or HERTZ)
             scale_name = None
             for k in res_dict.keys():
-                if k.upper() in ('TIME', 'FREQUENCY', 'HERTZ'):
+                if k.upper() in ("TIME", "FREQUENCY", "HERTZ"):
                     scale_name = k
                     break
 
@@ -64,23 +77,25 @@ class HSpiceRawFile:
             scale_values = res_dict[scale_name]
 
             # Determine analysis type
-            if scale_name.upper() == 'TIME':
-                analysis_type = 'transient'
+            if scale_name.upper() == "TIME":
+                analysis_type = "transient"
                 scale_unit = u_s
-            elif scale_name.upper() in ('FREQUENCY', 'HERTZ'):
-                analysis_type = 'ac'
+            elif scale_name.upper() in ("FREQUENCY", "HERTZ"):
+                analysis_type = "ac"
                 scale_unit = u_Hz
             else:
-                analysis_type = 'dc'
+                analysis_type = "dc"
                 scale_unit = None
 
             # Build WaveForms
             abscissa_name = scale_name.lower()
-            if analysis_type == 'ac':
-                abscissa_name = 'frequency'
+            if analysis_type == "ac":
+                abscissa_name = "frequency"
 
             if scale_unit:
-                abscissa_waveform = WaveForm.from_unit_values(abscissa_name, scale_unit(scale_values))
+                abscissa_waveform = WaveForm.from_unit_values(
+                    abscissa_name, scale_unit(scale_values)
+                )
             else:
                 abscissa_waveform = WaveForm.from_array(abscissa_name, scale_values)
 
@@ -92,31 +107,39 @@ class HSpiceRawFile:
                     continue
 
                 # Determine if it's a current or voltage
-                if k.lower().startswith('i('):
+                if k.lower().startswith("i("):
                     # Simplify name: strip i( and trailing )
                     simplified_name = k[2:]
-                    if simplified_name.endswith(')'):
+                    if simplified_name.endswith(")"):
                         simplified_name = simplified_name[:-1]
-                    branches.append(WaveForm.from_unit_values(simplified_name, u_A(v), abscissa=abscissa_waveform))
+                    branches.append(
+                        WaveForm.from_unit_values(
+                            simplified_name, u_A(v), abscissa=abscissa_waveform
+                        )
+                    )
                 else:
                     simplified_name = k
-                    nodes.append(WaveForm.from_unit_values(simplified_name, u_V(v), abscissa=abscissa_waveform))
+                    nodes.append(
+                        WaveForm.from_unit_values(
+                            simplified_name, u_V(v), abscissa=abscissa_waveform
+                        )
+                    )
 
-            if analysis_type == 'transient':
+            if analysis_type == "transient":
                 analysis = TransientAnalysis(
                     simulation=self.simulation,
                     time=abscissa_waveform,
                     nodes=nodes,
                     branches=branches,
-                    internal_parameters=[]
+                    internal_parameters=[],
                 )
-            elif analysis_type == 'ac':
+            elif analysis_type == "ac":
                 analysis = AcAnalysis(
                     simulation=self.simulation,
                     frequency=abscissa_waveform,
                     nodes=nodes,
                     branches=branches,
-                    internal_parameters=[]
+                    internal_parameters=[],
                 )
             else:
                 analysis = DcAnalysis(
@@ -124,7 +147,7 @@ class HSpiceRawFile:
                     sweep=abscissa_waveform,
                     nodes=nodes,
                     branches=branches,
-                    internal_parameters=[]
+                    internal_parameters=[],
                 )
 
             analysis._measurements = self.measurements
