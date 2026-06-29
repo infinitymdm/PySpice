@@ -62,6 +62,7 @@ class Simulator:
         * :code:`xyce` **alias for serial**
         * :code:`xyce-serial`
         * :code:`xyce-parallel`
+        * :code:`hspice`
 
         Return a :obj:`PySpice.Spice.Simulator` subclass.
 
