@@ -580,6 +580,31 @@ def make_tests():
     ))
 
   # ------------------------------------------------------------------
+  # AC SWEEP TEMP — AC sweep with temperature (-40 to 120 step 40 => 5 tables)
+  # ------------------------------------------------------------------
+  def ac_sweep_temp_assertions(tables, meta):
+    errs = []
+    if len(tables) != 5:
+      errs.append(f"Expected 5 outer sweep tables (temp), got {len(tables)}")
+      return errs
+    scale = meta["var_names"][0]
+    for i, t in enumerate(tables):
+      if scale not in t:
+        errs.append(f"Table {i}: scale '{scale}' missing")
+        continue
+      if len(t[scale]) != 11:
+        errs.append(f"Table {i}: expected 11 frequency points, got {len(t[scale])}")
+    return errs
+
+  for version in ["9601", "2001", "2013"]:
+    tests.append((
+      f"ac_sweep_temp_{version}.ac0",
+      "ac_sweep_temp_ascii.ac0",
+      f"ac_sweep_temp_{version}",
+      ac_sweep_temp_assertions,
+    ))
+
+  # ------------------------------------------------------------------
   # TRAN BASIC — no sweep, time 0..20ns step 1ns
   # ------------------------------------------------------------------
   def tran_basic_assertions(tables, meta):
@@ -693,6 +718,30 @@ def make_tests():
     ))
 
   # ------------------------------------------------------------------
+  # TRAN PROBES ONLY — transient analysis with probe statements only
+  # ------------------------------------------------------------------
+  def tran_probes_only_assertions(tables, meta):
+    errs = []
+    if len(tables) != 1:
+      errs.append(f"Expected 1 table, got {len(tables)}")
+      return errs
+    t = tables[0]
+    scale = meta["var_names"][0]
+    if scale not in t:
+      errs.append(f"Scale '{scale}' missing")
+    if len(meta["var_names"]) < 3:
+      errs.append(f"Expected multiple probes, got {meta['var_names']}")
+    return errs
+
+  for version in ["9601", "2001", "2013"]:
+    tests.append((
+      f"tran_probes_only_{version}.tr0",
+      "tran_probes_only_ascii.tr0",
+      f"tran_probes_only_{version}",
+      tran_probes_only_assertions,
+    ))
+
+  # ------------------------------------------------------------------
   # TRAN PROBE AND SWEEP — rval 10..30 step 10, explicit probes
   # ------------------------------------------------------------------
   def tran_probe_and_sweep_assertions(tables, meta):
@@ -763,6 +812,35 @@ def make_tests():
       dc_probes_only_assertions,
     ))
 
+
+  # ------------------------------------------------------------------
+  # DC PROBE AND SWEEP — rval 10..30 step 10, explicit probes (5 points inner)
+  # ------------------------------------------------------------------
+  def dc_probe_and_sweep_assertions(tables, meta):
+    errs = []
+    if len(tables) != 3:
+      errs.append(f"Expected 3 outer sweep tables (rval), got {len(tables)}")
+      return errs
+    scale = meta["var_names"][0]
+    for i, t in enumerate(tables):
+      if scale not in t:
+        errs.append(f"Table {i}: scale '{scale}' missing")
+        continue
+      if len(t[scale]) != 5:
+        errs.append(f"Table {i}: expected 5 inner points, got {len(t[scale])}")
+      for p in ["node_a", "node_b"]:
+        if find_var(t, p) is None:
+          errs.append(f"Table {i}: '{p}' probe missing")
+    return errs
+
+  for version in ["9601", "2001", "2013"]:
+    tests.append((
+      f"dc_probe_and_sweep_{version}.sw0",
+      "dc_probe_and_sweep_ascii.sw0",
+      f"dc_probe_and_sweep_{version}",
+      dc_probe_and_sweep_assertions,
+    ))
+
   # ------------------------------------------------------------------
   # AC PROBES ONLY — v(node_a), v(node_b), differential, i(v1), i(r1)
   # ------------------------------------------------------------------
@@ -790,6 +868,37 @@ def make_tests():
       "ac_probes_only_ascii.ac0",
       f"ac_probes_only_{version}",
       ac_probes_only_assertions,
+    ))
+
+  # ------------------------------------------------------------------
+  # AC PROBE AND SWEEP — rval 10..30 step 10, explicit probes (11 points inner)
+  # ------------------------------------------------------------------
+  def ac_probe_and_sweep_assertions(tables, meta):
+    errs = []
+    if len(tables) != 3:
+      errs.append(f"Expected 3 outer sweep tables (rval), got {len(tables)}")
+      return errs
+    scale = meta["var_names"][0]
+    for i, t in enumerate(tables):
+      if scale not in t:
+        errs.append(f"Table {i}: scale '{scale}' missing")
+        continue
+      if len(t[scale]) != 11:
+        errs.append(f"Table {i}: expected 11 frequency points, got {len(t[scale])}")
+      for p in ["node_a", "node_b"]:
+        pv = find_var(t, p)
+        if pv is None:
+          errs.append(f"Table {i}: '{p}' probe missing")
+        elif t[pv] and not isinstance(t[pv][0], complex):
+          errs.append(f"Table {i}: '{pv}' should be complex in AC")
+    return errs
+
+  for version in ["9601", "2001", "2013"]:
+    tests.append((
+      f"ac_probe_and_sweep_{version}.ac0",
+      "ac_probe_and_sweep_ascii.ac0",
+      f"ac_probe_and_sweep_{version}",
+      ac_probe_and_sweep_assertions,
     ))
 
   # ------------------------------------------------------------------
