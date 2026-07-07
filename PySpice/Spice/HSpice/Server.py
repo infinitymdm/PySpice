@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+
 from .hspicefile import hspice_read
 from .RawFile import HSpiceRawFile
 
@@ -46,14 +47,16 @@ def acquire_hspice_lock(limit):
     Returns (lock_file_descriptor, slot_index).
     Blocks until a slot becomes available.
     """
-    lock_dir = "/tmp/pyspice_hspice_locks"
-    os.makedirs(lock_dir, exist_ok=True)
+    lock_dir = os.path.join(
+        tempfile.gettempdir(), f"pyspice_hspice_locks_{os.getuid()}"
+    )
+    os.makedirs(lock_dir, mode=0o700, exist_ok=True)
 
     # Ensure lock files exist with correct permissions
     lock_files = []
     for i in range(limit):
         path = os.path.join(lock_dir, f"lock_{i}")
-        fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o666)
+        fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
         lock_files.append((fd, i))
 
     while True:
@@ -95,7 +98,7 @@ class HSpiceServer:
         logger.info("Running HSPICE simulation")
 
         # Create temporary directory
-        tmp_dir = tempfile.mkdtemp(dir=os.path.dirname(tempfile.mktemp()))
+        tmp_dir = tempfile.mkdtemp(prefix="pyspice_hspice_")
         try:
             input_file = os.path.join(tmp_dir, "input.sp")
             output_base = os.path.join(tmp_dir, "output")
@@ -219,7 +222,9 @@ class HSpiceServer:
                                 parts = line[1:].split("=")
                                 if len(parts) == 2:
                                     node_name = parts[0].strip().lower()
-                                    if node_name.startswith("v(") and node_name.endswith(")"):
+                                    if node_name.startswith(
+                                        "v("
+                                    ) and node_name.endswith(")"):
                                         node_name = node_name[2:-1]
                                     try:
                                         node_val = parse_spice_value(parts[1].strip())
@@ -265,7 +270,10 @@ class HSpiceServer:
                                     pass
 
                     return HSpiceRawFile(
-                        data=None, op_nodes=nodes, op_branches=branches, analysis_type="o"
+                        data=None,
+                        op_nodes=nodes,
+                        op_branches=branches,
+                        analysis_type="o",
                     )
                 else:
                     raise NameError(
@@ -304,10 +312,10 @@ class HSpiceServer:
                             for val_line in content_lines[1:]:
                                 vals = val_line.split()
                                 if len(vals) != len(names):
-                                  logger.warning(
-                                    f"Measurement line width mismatch: expected {len(names)} values, got {len(vals)}"
-                                  )
-                                  continue
+                                    logger.warning(
+                                        f"Measurement line width mismatch: expected {len(names)} values, got {len(vals)}"
+                                    )
+                                    continue
                                 for name, val in zip(names, vals):
                                     name_lower = name.lower()
                                     if name_lower not in (
@@ -333,7 +341,9 @@ class HSpiceServer:
                             f"Failed to parse measurement file {meas_file_path}: {e}"
                         )
 
-            return HSpiceRawFile(data, measurements=measurements, analysis_type=analysis_type)
+            return HSpiceRawFile(
+                data, measurements=measurements, analysis_type=analysis_type
+            )
 
         finally:
             shutil.rmtree(tmp_dir)

@@ -447,6 +447,15 @@ def make_tests():
             for i, ev in enumerate([-40.0, 0.0, 40.0, 80.0, 120.0]):
                 if not _close(float(sweep_vals[i]), ev, rtol=1e-3):
                     errs.append(f"sweep_vals[{i}]={sweep_vals[i]}, expected {ev}")
+        for i, t in enumerate(data_list):
+            sn = _find(t, scale_name)
+            if sn is None:
+                errs.append(f"Table {i}: scale '{scale_name}' missing")
+                continue
+            if len(t[sn]) != 11:
+                errs.append(
+                    f"Table {i}: expected 11 frequency points, got {len(t[sn])}"
+                )
         return errs
 
     for version in ["9601", "2001", "2013"]:
@@ -654,32 +663,6 @@ def make_tests():
         tests.append((f"tran_monte_{version}.tr0", f"tran_monte_{version}", tran_monte))
 
     # ------------------------------------------------------------------
-    # AC SWEEP TEMP: 5 temperature sweep points (-40 to 120 step 40)
-    # ------------------------------------------------------------------
-    def ac_sweep_temp(title, date, scale_name, sweep_name, sweep_vals, data_list):
-        errs = []
-        if len(data_list) != 5:
-            errs.append(f"Expected 5 tables, got {len(data_list)}")
-            return errs
-        for i, t in enumerate(data_list):
-            sn = _find(t, scale_name)
-            if sn is None:
-                errs.append(f"Table {i}: scale '{scale_name}' missing")
-                continue
-            if len(t[sn]) != 11:
-                errs.append(f"Table {i}: expected 11 frequency points, got {len(t[sn])}")
-        return errs
-
-    for version in ["9601", "2001", "2013"]:
-        tests.append(
-            (
-                f"ac_sweep_temp_{version}.ac0",
-                f"ac_sweep_temp_{version}",
-                ac_sweep_temp,
-            )
-        )
-
-    # ------------------------------------------------------------------
     # AC PROBE AND SWEEP: 3 parameter sweep points (rval 10..30 step 10)
     # ------------------------------------------------------------------
     def ac_probe_and_sweep(title, date, scale_name, sweep_name, sweep_vals, data_list):
@@ -693,13 +676,17 @@ def make_tests():
                 errs.append(f"Table {i}: scale '{scale_name}' missing")
                 continue
             if len(t[sn]) != 11:
-                errs.append(f"Table {i}: expected 11 frequency points, got {len(t[sn])}")
+                errs.append(
+                    f"Table {i}: expected 11 frequency points, got {len(t[sn])}"
+                )
             for p in ["node_a", "node_b"]:
                 pn = _find(t, p)
                 if pn is None:
                     errs.append(f"Table {i}: '{p}' probe missing")
                 elif t[pn].dtype != np.complex128:
-                    errs.append(f"Table {i}: '{pn}' expected complex128, got {t[pn].dtype}")
+                    errs.append(
+                        f"Table {i}: '{pn}' expected complex128, got {t[pn].dtype}"
+                    )
         return errs
 
     for version in ["9601", "2001", "2013"]:

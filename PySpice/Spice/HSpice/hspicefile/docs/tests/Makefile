@@ -1,4 +1,5 @@
 # Default target (running 'make' with no arguments will trigger this)
+.PHONY: all test clean
 all: test
 
 # 1. This runs only if run_simulations.py changes

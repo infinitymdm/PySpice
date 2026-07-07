@@ -1,4 +1,5 @@
 import logging
+
 from ..SimulatorBase import Simulator
 from .Server import HSpiceServer
 
@@ -11,7 +12,9 @@ class HSpiceSimulator(Simulator):
 
     def __init__(self, **kwargs):
         server_kwargs = {
-            x: kwargs[x] for x in ("spice_command", "concurrency_limit", "timeout") if x in kwargs
+            x: kwargs[x]
+            for x in ("spice_command", "concurrency_limit", "timeout")
+            if x in kwargs
         }
         self._spice_server = HSpiceServer(**server_kwargs)
 

@@ -1,40 +1,38 @@
 import logging
+
 import numpy as np
-from PySpice.Unit import u_V, u_A, u_s, u_Hz, u_Degree
-from PySpice.Probe.WaveForm import (
-    TransientAnalysis,
-    DcAnalysis,
-    AcAnalysis,
-    WaveForm,
-    OperatingPoint,
-)
+
+from PySpice.Probe.WaveForm import (AcAnalysis, DcAnalysis, OperatingPoint,
+                                    TransientAnalysis, WaveForm)
+from PySpice.Unit import u_A, u_Degree, u_Hz, u_s, u_V
+
 
 class AnalysisList(list):
-  def __init__(self, analyses, measurements=None):
-    super().__init__(analyses)
-    self._measurements = measurements or {}
+    def __init__(self, analyses, measurements=None):
+        super().__init__(analyses)
+        self._measurements = measurements or {}
 
-  @property
-  def measurements(self):
-    return self._measurements
+    @property
+    def measurements(self):
+        return self._measurements
 
-  def __getattr__(self, name):
-    if name in self._measurements:
-      return self._measurements[name]
-    if name.lower() in self._measurements:
-      return self._measurements[name.lower()]
-    raise AttributeError(f"'AnalysisList' object has no attribute '{name}'")
+    def __getattr__(self, name):
+        if name in self._measurements:
+            return self._measurements[name]
+        if name.lower() in self._measurements:
+            return self._measurements[name.lower()]
+        raise AttributeError(f"'AnalysisList' object has no attribute '{name}'")
 
-  def __getitem__(self, item):
-    if isinstance(item, (int, slice)):
-      return super().__getitem__(item)
-    if isinstance(item, str):
-      if item in self._measurements:
-        return self._measurements[item]
-      if item.lower() in self._measurements:
-        return self._measurements[item.lower()]
-      raise IndexError(item)
-    raise KeyError(item)
+    def __getitem__(self, item):
+        if isinstance(item, (int, slice)):
+            return super().__getitem__(item)
+        if isinstance(item, str):
+            if item in self._measurements:
+                return self._measurements[item]
+            if item.lower() in self._measurements:
+                return self._measurements[item.lower()]
+            raise IndexError(item)
+        raise KeyError(item)
 
 
 _module_logger = logging.getLogger(__name__)
@@ -42,7 +40,13 @@ _module_logger = logging.getLogger(__name__)
 
 class HSpiceRawFile:
     def __init__(
-        self, data, simulation=None, measurements=None, op_nodes=None, op_branches=None, analysis_type=None
+        self,
+        data,
+        simulation=None,
+        measurements=None,
+        op_nodes=None,
+        op_branches=None,
+        analysis_type=None,
     ):
         self.data = data
         self._simulation = simulation
@@ -82,7 +86,11 @@ class HSpiceRawFile:
 
         if len(data_list) == 0:
             analysis_type = self._analysis_type
-            if not analysis_type and self.simulation and hasattr(self.simulation, "_analyses"):
+            if (
+                not analysis_type
+                and self.simulation
+                and hasattr(self.simulation, "_analyses")
+            ):
                 analyses_keys = set(self.simulation._analyses.keys())
                 if "ac" in analyses_keys:
                     analysis_type = "a"
@@ -127,7 +135,6 @@ class HSpiceRawFile:
                 )
             analysis._measurements = self.measurements
             return analysis
-
 
         # Derive analysis type and scale unit once from the parser-provided name.
         _sn_upper = scale_name_outer.upper()

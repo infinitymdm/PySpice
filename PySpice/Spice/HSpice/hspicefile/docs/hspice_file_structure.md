@@ -83,7 +83,7 @@ Following the format descriptor, fixed character offsets define simulation prope
 ### 3.3 Variable Type and Name Token Layout
 Starting at payload offset `256`, the space-delimited token sequence is:
 
-```
+```text
 <type_0> <type_1> ... <type_{N-1}>  <name_0> <name_1> ... <name_{N-1}>
 ```
 
