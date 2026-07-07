@@ -16,12 +16,16 @@ class AnalysisList(list):
     def measurements(self):
         return self._measurements
 
-    def __getattr__(self, name):
-        if name in self._measurements:
-            return self._measurements[name]
-        if name.lower() in self._measurements:
-            return self._measurements[name.lower()]
-        raise AttributeError(f"'AnalysisList' object has no attribute '{name}'")
+    def __getattribute__(self, name):
+        try:
+            measurements = object.__getattribute__(self, "_measurements")
+        except AttributeError:
+            measurements = {}
+        if name in measurements:
+            return measurements[name]
+        if name.lower() in measurements:
+            return measurements[name.lower()]
+        return object.__getattribute__(self, name)
 
     def __getitem__(self, item):
         if isinstance(item, (int, slice)):

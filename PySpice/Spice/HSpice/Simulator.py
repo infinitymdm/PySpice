@@ -24,7 +24,8 @@ class HSpiceSimulator(Simulator):
 
     def customise(self, simulation):
         # Add post option to simulation options if not present
-        simulation.options(post=1)
+        if "post" not in simulation._options and "POST" not in simulation._options:
+            simulation.options(post=1)
 
     def run(self, simulation, *args, **kwargs):
         raw_file = self._spice_server(spice_input=str(simulation))
