@@ -70,10 +70,10 @@ def acquire_hspice_lock(limit, timeout=None):
                 return fd, idx
             except BlockingIOError:
                 continue
-            if timeout is not None and time.monotonic() - start > timeout:
-                for fd, _ in lock_files:
-                    os.close(fd)
-                raise TimeoutError("Timed out waiting for an HSPICE slot.")
+        if timeout is not None and time.monotonic() - start > timeout:
+            for fd, _ in lock_files:
+                os.close(fd)
+            raise TimeoutError("Timed out waiting for an HSPICE slot.")
         time.sleep(0.05)
 
 

@@ -378,9 +378,9 @@ int getSweepInfo(int debugMode, PyObject **sweep, char *buf, int *sweepSize,
   }
 
   // Get number of sweep points.
-  if (parse_int(&buf[sweepSizePosition], sweepSize) < 0) {
+  if (parse_int(&buf[sweepSizePosition], sweepSize) < 0 || *sweepSize <= 0) {
     PyErr_Format(HSpiceParseError,
-                 "Failed to parse sweep size as valid integer.");
+                 "Failed to parse sweep size as a positive integer.");
     return -1;
   }
 
