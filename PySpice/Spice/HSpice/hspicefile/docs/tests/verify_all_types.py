@@ -870,7 +870,8 @@ def make_tests():
             if len(t[scale]) != 5:
                 errs.append(f"Table {i}: expected 5 inner points, got {len(t[scale])}")
             for p in ["node_a", "node_b"]:
-                if find_var(t, p) is None:
+                found = any(p in k for k in t if k != "__sweep_val__")
+                if not found:
                     errs.append(f"Table {i}: '{p}' probe missing")
         return errs
 
@@ -933,7 +934,7 @@ def make_tests():
                     f"Table {i}: expected 11 frequency points, got {len(t[scale])}"
                 )
             for p in ["node_a", "node_b"]:
-                pv = find_var(t, p)
+                pv = next((k for k in t if p in k and k != "__sweep_val__"), None)
                 if pv is None:
                     errs.append(f"Table {i}: '{p}' probe missing")
                 elif t[pv] and not isinstance(t[pv][0], complex):
