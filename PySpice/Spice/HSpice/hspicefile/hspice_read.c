@@ -776,8 +776,7 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args) {
 
   // Get hspice_read() arguments.
   if (!PyArg_ParseTuple(args, "si", &fileName, &debugMode)) {
-    Py_INCREF(Py_None);
-    return Py_None;
+    return NULL;
   }
 
   if (debugMode) {
