@@ -15,6 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#ifndef HSPICE_READ_H
+#define HSPICE_READ_H
+
 #include "Python.h"
 #include <stdbool.h>
 
@@ -51,3 +55,5 @@ static PyObject *HSpiceParseError;
 #ifdef LINUX
 #define __declspec(a) extern
 #endif
+
+#endif // HSPICE_READ_H

@@ -35,6 +35,7 @@
 #include "Python.h"
 #include "numpy/arrayobject.h"
 #include "numpy/npy_math.h"
+#include <errno.h>
 #include <limits.h>
 
 // Methods table
@@ -321,6 +322,31 @@ int readHeaderBlock(struct ParserContext *ctx, char **buf, int *bufOffset) {
   return 1; // There is more.
 }
 
+static int parse_int(const char *str, int *out_val) {
+  char *endptr;
+  long val;
+  if (str == NULL || *str == '\0') {
+    return -1;
+  }
+  errno = 0;
+  val = strtol(str, &endptr, 10);
+  if (endptr == str) {
+    return -1;
+  }
+  if (errno == ERANGE || val < INT_MIN || val > INT_MAX) {
+    return -1;
+  }
+  while (*endptr != '\0') {
+    if (*endptr != ' ' && *endptr != '\t' && *endptr != '\n' &&
+        *endptr != '\r') {
+      return -1;
+    }
+    endptr++;
+  }
+  *out_val = (int)val;
+  return 0;
+}
+
 // Get sweep information from file header block. Returns:
 //   -1 ... error occurred
 //   0 ... performed normally
@@ -352,7 +378,11 @@ int getSweepInfo(int debugMode, PyObject **sweep, char *buf, int *sweepSize,
   }
 
   // Get number of sweep points.
-  *sweepSize = atoi(&buf[sweepSizePosition]);
+  if (parse_int(&buf[sweepSizePosition], sweepSize) < 0) {
+    PyErr_Format(HSpiceParseError,
+                 "Failed to parse sweep size as valid integer.");
+    return -1;
+  }
 
   // Create array for sweep parameter values.
   dims = *sweepSize;
@@ -851,16 +881,28 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args) {
   }
 
   buf[numOfSweepsEndPosition] = 0; // Check number of sweep parameters.
-  num = atoi(&buf[numOfSweepsPosition]);
+  if (parse_int(&buf[numOfSweepsPosition], &num) < 0) {
+    PyErr_Format(HSpiceParseError,
+                 "Failed to parse number of sweeps as valid integer.");
+    goto failed;
+  }
   if (num < 0 || num > 1) {
     PyErr_Format(PyExc_ValueError, "Only single dimension sweeps supported.");
     goto failed;
   }
 
   buf[numOfSweepsPosition] = 0; // Get number of vectors (variables and probes).
-  parsedProbes = atoi(&buf[numOfProbesPosition]);
+  if (parse_int(&buf[numOfProbesPosition], &parsedProbes) < 0) {
+    PyErr_Format(HSpiceParseError,
+                 "Failed to parse number of probes as valid integer.");
+    goto failed;
+  }
   buf[numOfProbesPosition] = 0;
-  numOfVariables = atoi(&buf[numOfVariablesPosition]); // Scale included.
+  if (parse_int(&buf[numOfVariablesPosition], &numOfVariables) < 0) {
+    PyErr_Format(HSpiceParseError,
+                 "Failed to parse number of variables as valid integer.");
+    goto failed;
+  }
   if (parsedProbes < 0 || numOfVariables <= 0 ||
       parsedProbes > INT_MAX - numOfVariables) {
     if (debugMode) {
@@ -898,10 +940,18 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args) {
     goto failed;
   }
   if (numOfVectors > 1) {
-    varTypes[1] = atoi(token);
+    if (parse_int(token, &varTypes[1]) < 0) {
+      PyErr_Format(HSpiceParseError,
+                   "Failed to parse vector type as valid integer.");
+      goto failed;
+    }
     type = varTypes[1];
   } else {
-    varTypes[0] = atoi(token);
+    if (parse_int(token, &varTypes[0]) < 0) {
+      PyErr_Format(HSpiceParseError,
+                   "Failed to parse vector type as valid integer.");
+      goto failed;
+    }
     type = varTypes[0];
   }
   if (type == frequency) {
@@ -918,9 +968,17 @@ static PyObject *HSpiceRead(PyObject *self, PyObject *args) {
     }
     if (numOfVectors > 1) {
       if (i < numOfVectors - 2) {
-        varTypes[i + 2] = atoi(token);
+        if (parse_int(token, &varTypes[i + 2]) < 0) {
+          PyErr_Format(HSpiceParseError,
+                       "Failed to parse vector type as valid integer.");
+          goto failed;
+        }
       } else if (i == numOfVectors - 2) {
-        varTypes[0] = atoi(token);
+        if (parse_int(token, &varTypes[0]) < 0) {
+          PyErr_Format(HSpiceParseError,
+                       "Failed to parse vector type as valid integer.");
+          goto failed;
+        }
       }
     }
   }

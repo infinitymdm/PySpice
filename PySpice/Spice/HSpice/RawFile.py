@@ -16,16 +16,13 @@ class AnalysisList(list):
     def measurements(self):
         return self._measurements
 
-    def __getattribute__(self, name):
-        try:
-            measurements = object.__getattribute__(self, "_measurements")
-        except AttributeError:
-            measurements = {}
+    def __getattr__(self, name):
+        measurements = self.__dict__.get("_measurements", {})
         if name in measurements:
             return measurements[name]
         if name.lower() in measurements:
             return measurements[name.lower()]
-        return object.__getattribute__(self, name)
+        raise AttributeError(name)
 
     def __getitem__(self, item):
         if isinstance(item, (int, slice)):
@@ -137,7 +134,7 @@ class HSpiceRawFile:
                     branches=[],
                     internal_parameters=[],
                 )
-            analysis._measurements = self.measurements
+            analysis._measurements = dict(self.measurements)
             return analysis
 
         # Derive analysis type and scale unit once from the parser-provided name.
@@ -242,9 +239,9 @@ class HSpiceRawFile:
                     internal_parameters=[],
                 )
 
-            analysis._measurements = self.measurements
+            analysis._measurements = dict(self.measurements)
             analyses.append(analysis)
 
         if len(analyses) == 1:
             return analyses[0]
-        return AnalysisList(analyses, self.measurements)
+        return AnalysisList(analyses, dict(self.measurements))

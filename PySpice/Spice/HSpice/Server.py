@@ -41,7 +41,7 @@ def parse_spice_value(val_str):
             raise
 
 
-def acquire_hspice_lock(limit):
+def acquire_hspice_lock(limit, timeout=None):
     """
     Acquire one of the slot locks (0 to limit-1) using fcntl.flock.
     Returns (lock_file_descriptor, slot_index).
@@ -59,6 +59,7 @@ def acquire_hspice_lock(limit):
         fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
         lock_files.append((fd, i))
 
+    start = time.monotonic()
     while True:
         for fd, idx in lock_files:
             try:
@@ -69,6 +70,10 @@ def acquire_hspice_lock(limit):
                 return fd, idx
             except BlockingIOError:
                 continue
+            if timeout is not None and time.monotonic() - start > timeout:
+                for fd, _ in lock_files:
+                    os.close(fd)
+                raise TimeoutError("Timed out waiting for an HSPICE slot.")
         time.sleep(0.05)
 
 
