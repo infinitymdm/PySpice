@@ -27,17 +27,17 @@ from .Xyce.Simulator import XyceSimulator
 from .HSpice.Simulator import HSpiceSimulator
 
 SIMULATOR_MAP = {
-    "ngspice-subprocess": NgSpiceSubprocessSimulator,
-    "ngspice": NgSpiceSharedSimulator,
-    "ngspice-shared": NgSpiceSharedSimulator,
-    "xyce": XyceSimulator,
-    "xyce-serial": XyceSimulator,
-    "xyce-parallel": XyceSimulator,
-    "hspice": HSpiceSimulator,
+  "ngspice-subprocess": NgSpiceSubprocessSimulator,
+  "ngspice": NgSpiceSharedSimulator,
+  "ngspice-shared": NgSpiceSharedSimulator,
+  "xyce": XyceSimulator,
+  "xyce-serial": XyceSimulator,
+  "xyce-parallel": XyceSimulator,
+  "hspice": HSpiceSimulator,
 }
 
 # Register all simulator subclasses
 for name, cls in SIMULATOR_MAP.items():
-    Simulator.register_simulator_class(name, cls)
+  Simulator.register_simulator_class(name, cls)
 
 SIMULATORS = tuple(SIMULATOR_MAP.keys())

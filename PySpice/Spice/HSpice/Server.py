@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import time
+
 from .hspicefile import hspice_read
 from .RawFile import HSpiceRawFile
 
@@ -46,14 +47,16 @@ def acquire_hspice_lock(limit):
     Returns (lock_file_descriptor, slot_index).
     Blocks until a slot becomes available.
     """
-    lock_dir = "/tmp/pyspice_hspice_locks"
-    os.makedirs(lock_dir, exist_ok=True)
+    lock_dir = os.path.join(
+        tempfile.gettempdir(), f"pyspice_hspice_locks_{os.getuid()}"
+    )
+    os.makedirs(lock_dir, mode=0o700, exist_ok=True)
 
     # Ensure lock files exist with correct permissions
     lock_files = []
     for i in range(limit):
         path = os.path.join(lock_dir, f"lock_{i}")
-        fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o666)
+        fd = os.open(path, os.O_RDWR | os.O_CREAT, 0o600)
         lock_files.append((fd, i))
 
     while True:
@@ -95,7 +98,7 @@ class HSpiceServer:
         logger.info("Running HSPICE simulation")
 
         # Create temporary directory
-        tmp_dir = tempfile.mkdtemp(dir=os.path.dirname(tempfile.mktemp()))
+        tmp_dir = tempfile.mkdtemp(prefix="pyspice_hspice_")
         try:
             input_file = os.path.join(tmp_dir, "input.sp")
             output_base = os.path.join(tmp_dir, "output")
@@ -158,6 +161,7 @@ class HSpiceServer:
 
             # Find generated binary raw output files
             raw_file_path = None
+            analysis_type = None
             # Prioritize standard waveform files: transient (.tr), ac (.ac), dc sweep (.sw)
             for ext in (".tr", ".ac", ".sw"):
                 for f in os.listdir(tmp_dir):
@@ -167,8 +171,14 @@ class HSpiceServer:
                             and not f.endswith(".lis")
                             and not f.endswith(".st0")
                             and not f.endswith(".ic0")
+                            and not f.endswith(".mc0")
                         ):
                             raw_file_path = os.path.join(tmp_dir, f)
+
+                            # Get "a,s or t" for analysis type
+                            detected_type = ext[1]
+                            if detected_type in "ast":
+                                analysis_type = detected_type
                             break
                 if raw_file_path:
                     break
@@ -181,6 +191,7 @@ class HSpiceServer:
                             f.endswith(".lis")
                             or f.endswith(".st0")
                             or f.endswith(".ic0")
+                            or f.endswith(".mc0")
                             or f.endswith(".pa0")
                         ):
                             raw_file_path = os.path.join(tmp_dir, f)
@@ -211,6 +222,10 @@ class HSpiceServer:
                                 parts = line[1:].split("=")
                                 if len(parts) == 2:
                                     node_name = parts[0].strip().lower()
+                                    if node_name.startswith(
+                                        "v("
+                                    ) and node_name.endswith(")"):
+                                        node_name = node_name[2:-1]
                                     try:
                                         node_val = parse_spice_value(parts[1].strip())
                                         nodes[node_name] = node_val
@@ -255,7 +270,10 @@ class HSpiceServer:
                                     pass
 
                     return HSpiceRawFile(
-                        data=None, op_nodes=nodes, op_branches=branches
+                        data=None,
+                        op_nodes=nodes,
+                        op_branches=branches,
+                        analysis_type="o",
                     )
                 else:
                     raise NameError(
@@ -273,6 +291,9 @@ class HSpiceServer:
             measurements = {}
             for f in os.listdir(tmp_dir):
                 if f.startswith("output.m") and f[-1].isdigit():
+                    detected_type = f[-2]
+                    if detected_type in "ast":
+                        analysis_type = detected_type
                     meas_file_path = os.path.join(tmp_dir, f)
                     logger.info(f"Parsing measurement file: {meas_file_path}")
                     try:
@@ -290,6 +311,11 @@ class HSpiceServer:
                             is_sweep = len(content_lines) > 2
                             for val_line in content_lines[1:]:
                                 vals = val_line.split()
+                                if len(vals) != len(names):
+                                    logger.warning(
+                                        f"Measurement line width mismatch: expected {len(names)} values, got {len(vals)}"
+                                    )
+                                    continue
                                 for name, val in zip(names, vals):
                                     name_lower = name.lower()
                                     if name_lower not in (
@@ -315,7 +341,9 @@ class HSpiceServer:
                             f"Failed to parse measurement file {meas_file_path}: {e}"
                         )
 
-            return HSpiceRawFile(data, measurements=measurements)
+            return HSpiceRawFile(
+                data, measurements=measurements, analysis_type=analysis_type
+            )
 
         finally:
             shutil.rmtree(tmp_dir)

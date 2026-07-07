@@ -74,7 +74,7 @@ else:
 ####################################################################################################
 
 setup_dict = dict(
-  long_description=long_description,
-  ext_modules=ext_modules,
-  cmdclass=cmdclass,
+    long_description=long_description,
+    ext_modules=ext_modules,
+    cmdclass=cmdclass,
 )
