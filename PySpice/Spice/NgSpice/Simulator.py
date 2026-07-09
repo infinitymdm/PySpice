@@ -27,7 +27,7 @@ import logging
 
 ####################################################################################################
 
-from ..Simulator import Simulator
+from ..SimulatorBase import Simulator
 from .Server import SpiceServer
 from .Shared import NgSpiceShared
 

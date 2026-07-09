@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 220" width="100%" height="220" style="background:#1e1e2e; border-radius:12px; font-family:system-ui, sans-serif;">
+  <defs>
+    <linearGradient id="timeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b4befe"/>
+      <stop offset="100%" stop-color="#89b4fa"/>
+    </linearGradient>
+    <linearGradient id="sigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a6e3a1"/>
+      <stop offset="100%" stop-color="#94e2d5"/>
+    </linearGradient>
+  </defs>
+
+  <text x="30" y="35" fill="#cdd6f4" font-size="16" font-weight="bold">Hybrid Precision Data Row (e.g. 24-Byte Row)</text>
+
+  <g transform="translate(30, 60)">
+    <!-- Time/Scale Variable (Double) -->
+    <rect x="0" y="20" width="240" height="70" rx="8" fill="url(#timeGrad)"/>
+    <text x="120" y="50" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">TIME / scale variable</text>
+    <text x="120" y="70" fill="#313244" font-size="11" text-anchor="middle">8-Byte Double Precision (double)</text>
+    <text x="0" y="105" fill="#cdd6f4" font-size="11">Byte Offset: 0</text>
+
+    <!-- Signal Variable 1 (Float) -->
+    <rect x="250" y="20" width="120" height="70" rx="8" fill="url(#sigGrad)"/>
+    <text x="310" y="50" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">v(in)</text>
+    <text x="310" y="70" fill="#313244" font-size="11" text-anchor="middle">4-Byte Float</text>
+    <text x="250" y="105" fill="#cdd6f4" font-size="11">Byte Offset: 8</text>
+
+    <!-- Signal Variable 2 (Float) -->
+    <rect x="380" y="20" width="120" height="70" rx="8" fill="url(#sigGrad)"/>
+    <text x="440" y="50" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">v(out)</text>
+    <text x="440" y="70" fill="#313244" font-size="11" text-anchor="middle">4-Byte Float</text>
+    <text x="380" y="105" fill="#cdd6f4" font-size="11">Byte Offset: 12</text>
+
+    <!-- Signal Variable 3 (Float) -->
+    <rect x="510" y="20" width="120" height="70" rx="8" fill="url(#sigGrad)"/>
+    <text x="570" y="50" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">v(0)</text>
+    <text x="570" y="70" fill="#313244" font-size="11" text-anchor="middle">4-Byte Float</text>
+    <text x="510" y="105" fill="#cdd6f4" font-size="11">Byte Offset: 16</text>
+
+    <!-- Signal Variable 4 (Float) -->
+    <rect x="640" y="20" width="100" height="70" rx="8" fill="url(#sigGrad)"/>
+    <text x="690" y="50" fill="#11111b" font-size="14" font-weight="bold" text-anchor="middle">i(v1)</text>
+    <text x="690" y="70" fill="#313244" font-size="11" text-anchor="middle">4-Byte Float</text>
+    <text x="640" y="105" fill="#cdd6f4" font-size="11">Byte Offset: 20</text>
+  </g>
+</svg>

@@ -22,7 +22,12 @@
 
 ####################################################################################################
 
+import os
 import sys
+
+setup_dir = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else os.getcwd()
+if setup_dir not in sys.path:
+    sys.path.insert(0, setup_dir)
 
 from setuptools import setup
 
