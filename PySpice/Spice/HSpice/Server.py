@@ -116,7 +116,10 @@ class HSpiceServer:
                 f.write(netlist_str)
 
             # Acquire the lock to limit the concurrency
-            lock_fd, slot_idx = acquire_hspice_lock(self._concurrency_limit)
+            lock_fd, slot_idx = acquire_hspice_lock(
+                self._concurrency_limit,
+                timeout=self._timeout,
+            )
 
             try:
                 # Submit the job
@@ -332,6 +335,12 @@ class HSpiceServer:
                         data_tokens = all_tokens[header_len:]
 
                         if names and data_tokens:
+                            if len(data_tokens) % header_len != 0:
+                                raise ValueError(
+                                    "Measurement line width mismatch: "
+                                    f"expected rows of {header_len} values, "
+                                    f"got {len(data_tokens)} data tokens"
+                                )
                             is_sweep = len(data_tokens) > header_len
                             for i, name in enumerate(names):
                                 name_lower = name.lower()
