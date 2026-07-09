@@ -311,36 +311,48 @@ class HSpiceServer:
                             and not l.startswith("$")
                             and not l.startswith(".")
                         ]
-                        if len(content_lines) >= 2:
-                            names = content_lines[0].split()
-                            is_sweep = len(content_lines) > 2
-                            for val_line in content_lines[1:]:
-                                vals = val_line.split()
-                                if len(vals) != len(names):
-                                    logger.warning(
-                                        f"Measurement line width mismatch: expected {len(names)} values, got {len(vals)}"
-                                    )
-                                    continue
-                                for name, val in zip(names, vals):
-                                    name_lower = name.lower()
-                                    if name_lower not in (
-                                        "temper",
-                                        "alter#",
-                                        "temper#",
-                                        "alter",
-                                    ):
+                        all_tokens = []
+                        for line in content_lines:
+                            all_tokens.extend(line.split())
+
+                        def is_numeric_value(val):
+                            try:
+                                float(val)
+                                return True
+                            except ValueError:
+                                return val.lower() == "failed"
+
+                        header_len = 0
+                        for token in all_tokens:
+                            if is_numeric_value(token):
+                                break
+                            header_len += 1
+
+                        names = all_tokens[:header_len]
+                        data_tokens = all_tokens[header_len:]
+
+                        if names and data_tokens:
+                            is_sweep = len(data_tokens) > header_len
+                            for i, name in enumerate(names):
+                                name_lower = name.lower()
+                                if name_lower not in (
+                                    "temper",
+                                    "alter#",
+                                    "temper#",
+                                    "alter",
+                                ):
+                                    vals = []
+                                    for j in range(i, len(data_tokens), header_len):
+                                        val = data_tokens[j]
                                         try:
-                                            float_val = float(val)
-                                            if is_sweep:
-                                                if name_lower not in measurements:
-                                                    measurements[name_lower] = []
-                                                measurements[name_lower].append(
-                                                    float_val
-                                                )
-                                            else:
-                                                measurements[name_lower] = float_val
+                                            vals.append(float(val))
                                         except ValueError:
                                             pass
+                                    if vals:
+                                        if is_sweep:
+                                            measurements[name_lower] = vals
+                                        else:
+                                            measurements[name_lower] = vals[0]
                     except Exception as e:
                         logger.warning(
                             f"Failed to parse measurement file {meas_file_path}: {e}"
