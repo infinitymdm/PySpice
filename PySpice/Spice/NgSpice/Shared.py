@@ -623,7 +623,7 @@ class NgSpiceShared:
                 func = self._logger.info
             elif content.startswith('Error: bad set form in line'):
                 func = self._logger.info # TODO: Make sure there are actually no consequences from this
-            elif content.startswith('Warning:'):
+            elif 'Warning:' in content:
                 func = self._logger.warning
             elif 'Note:' in content:
                 func = self._logger.info
