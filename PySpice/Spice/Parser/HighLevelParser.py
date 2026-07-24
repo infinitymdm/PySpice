@@ -84,7 +84,9 @@ import os
 from ..Netlist import Node
 from ..StringTools import remove_multi_space
 from . import Ast
-from . import ElementData
+from PySpice.Spice.Parser.ElementData import elements as ElementData_elements
+from PySpice.Spice.Parser.ElementData import _init as ElementData_init
+
 from .Ast import AstNode
 from .Parser import SpiceParser
 from .SpiceSyntax import ElementLetters
@@ -313,7 +315,9 @@ class Element(Command):
         # Read nodes
         self._nodes = []
         number_of_pins = 0
-        data = ElementData.elements[self._letter]
+        if(len(ElementData_elements)==0):
+            ElementData_init()
+        data = ElementData_elements[self._letter]
         if not data.has_variable_number_of_pins:
             number_of_pins = data.number_of_pins
         else:   # Q or X
